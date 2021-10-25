@@ -102,8 +102,6 @@ library(ggplot2)
 library(Cairo)
 
 plot <- SimpLogoPlot(results, plot.ic = TRUE)
-#> Scale for 'y' is already present. Adding another scale for 'y', which will
-#> replace the existing scale.
 ```
 
 It produces a list of 3 graphical results, the primary SimpLogo plot
@@ -163,8 +161,6 @@ object\]
 
 ``` r
 plot2 <- SimpLogoPlot(results, plot.ic = TRUE, position.start = 18)
-#> Scale for 'y' is already present. Adding another scale for 'y', which will
-#> replace the existing scale.
 plot2$final.plot
 ```
 
@@ -180,8 +176,6 @@ specify the order to ggplot2.
 results2 <- results
 results2$arch <- factor(results2$arch, levels = c("CheV.I","CheA.I","CheW.IB","CheW.IC","CheW.II.1","CheW.II.2"), ordered = TRUE) ## put CheV first, then CheA, then CheW
 plot3 <- SimpLogoPlot(results2, plot.ic = TRUE, position.start = 18)
-#> Scale for 'y' is already present. Adding another scale for 'y', which will
-#> replace the existing scale.
 plot3$final.plot
 ```
 
