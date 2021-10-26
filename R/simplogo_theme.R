@@ -47,7 +47,7 @@ simplogo_ic_theme <- function(){
 
       #grid elements
       plot.margin = ggplot2::margin(t = 0, r = 5, b = 0, l = 0),
-      panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1.5),
+      panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1),
 
       #text elements
       axis.title.x = ggplot2::element_text(color="black"),

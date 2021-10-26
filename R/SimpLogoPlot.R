@@ -14,14 +14,14 @@ SimpLogoPlot <- function(simplogo, plot.ic = TRUE, position.start = NULL){
     ggplot2::geom_tile(## bottom color strip
       position = ggplot2::position_nudge(y = ifelse(simplogo$gap.freq < 0.5, -0.31*(1-simplogo$gap.freq), -0.31*(1-simplogo$gap.freq)-0.05)),
       #position = ggplot2::position_nudge(y = (0.25*(1-simplogo$gap.freq))),
-      height=0.1, width=0.9, size=0.1,  color="black",
+      height=0.1, width=0.9, size=0.2,  color="black",
       fill=simplogo$secondary.color) +
     ggplot2::geom_tile(## top color strip
       position = ggplot2::position_nudge(y = ifelse(simplogo$gap.freq < 0.5, 0.31*(1-simplogo$gap.freq), 0.31*(1-simplogo$gap.freq)+0.05)),
-      height=0.1, width=0.9, size=0.1, color="black",
+      height=0.1, width=0.9, size=0.2, color="black",
       fill=simplogo$top.color) +
     ggplot2::geom_tile(## add main rectangle (set heigh max to 0.5 x % non-gap characters)
-      height=(0.5*(1-simplogo$gap.freq)), width=0.9, size=0.15,
+      height=(0.5*(1-simplogo$gap.freq)), width=0.9, size=0.2,
       fill=simplogo$color, color="black") +
     ## artificially construct a legend with idealized (100%) residue type colors
     ggplot2::geom_point(x=0, y=0, ggplot2::aes(fill="#4363d8"), size=0, color="black", pch=21) + ## H/K/R
