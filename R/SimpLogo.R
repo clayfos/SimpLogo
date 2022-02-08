@@ -114,6 +114,19 @@ SimpLogo <- function(seq.dir, pattern = "*fa", group.names = NULL, lineage.names
 
     ## first convert to a counts matrix
     tmp.consensus <- Biostrings::consensusMatrix(substr(do.call(rbind, seq.list[[i]]), start=1, stop=align.width), as.prob = FALSE)
+    ## check that all 20 amino acids + gap are present
+    ## if not, add in empty rows
+    if (nrow(tmp.consensus) != 21){
+      full.aa.list <- unlist(restypes.for.summing)
+      names(full.aa.list) <- full.aa.list
+      missing.aa <- full.aa.list[!(full.aa.list %in% row.names(tmp.consensus))]
+      missing.rows <- matrix(0, nrow=length(missing.aa), ncol = ncol(tmp.consensus))
+      row.names(missing.rows) <- missing.aa
+      tmp.consensus <- rbind(tmp.consensus, missing.rows)
+      ## set row order to be consistent with other lists (and consensusMatrix default order)
+      correct.row.order <- c("-","A","C","D","E","F","G","H","I","K","L","M","N","P","Q","R","S","T","V","W","Y")
+      tmp.consensus <- tmp.consensus[correct.row.order,]
+    }
     ## then convert to frequency matrix
     tmp.motif <- motifStack::pcm2pfm(tmp.consensus)
     motif.name <- paste0(names(seq.list[i]))
