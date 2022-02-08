@@ -4,7 +4,7 @@ SimpLogo
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 <!-- badges: start -->
-
+[![DOI](https://zenodo.org/badge/418649749.svg)](https://zenodo.org/badge/latestdoi/418649749)
 <!-- badges: end -->
 
 ## Overview
