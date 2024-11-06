@@ -6,16 +6,23 @@
 #' @param pattern File extension for sequence alignment files (e.g., "*fa").
 #' @param group.names Character vector containing names for sequence groups (1 per alignment file; make sure it's in the same order as your sequence files). If NULL, names are taken from filenames.
 #' @param lineage.names Character vector containing lineage assignments for each sequence group. If NULL, assignments are taken from the sequence group.names themselves. If specifying, you must provide assignments for every included sequence group (1 per group).
-#' @return Returns a formatted SimpLogo data table ready for plotting.
+#' @param res.colors Character vector containing color hexcodes for the physicochemical amino acid residue groups. If NULL, will be default (RECOMMENDED; see GitHub README). If specifying, you must provide colors for all 8 residue groupings. Order for vector is as follows: H/K/R, D/E, A/G, Q/N/S/T, M/V/L/I, F/Y/W, P, and C. Keep in mind that a blending of certain colors can often be difficult to differentiate from a solid assignment.
+#' @return Returns a list containing a formatted SimpLogo data table ready for plotting and the color scheme used.
 #' @export
 
-SimpLogo <- function(seq.dir, pattern = "*fa", group.names = NULL, lineage.names = NULL){
+SimpLogo <- function(seq.dir, pattern = "*fa", group.names = NULL, lineage.names = NULL, res.colors = NULL){
 
   ## change number of sig figs (default is 7)
   options(digits=8)
 
-  ## list file names for the individual fasta files
-  seq.files <- list.files(path=seq.dir, pattern=pattern, all.files=TRUE, full.names=TRUE, include.dirs = FALSE)
+  ## check if path exists
+  if (file.exists(seq.dir)) {
+    ## list file names for the individual fasta files
+    seq.files <- list.files(path=seq.dir, pattern=pattern, all.files=TRUE, full.names=TRUE, include.dirs = FALSE)
+  } else {
+    stop("Could not find the specified path!")
+  }
+
 
   ## convert to AAString object
   seq.list <- list()
@@ -66,9 +73,19 @@ SimpLogo <- function(seq.dir, pattern = "*fa", group.names = NULL, lineage.names
   names(residue.type.list) <- c("H/K/R","D/E","A/G","Q/N/S/T","M/V/L/I","F/Y/W","P","C","-")
 
   ## assign colors
+  if (is.null(res.colors)){ ## use defaults
   motif.color.list <- c("H/K/R" = "#4363d8", "D/E" = "#e6194b", "A/G" = "#2F4F4F", "Q/N/S/T" = "#ffe119",
-                        "M/V/L/I" = "#3cb44b", "F/Y/W" = "#9a6324", "P" = "#ffffff", "C" = "#46f0f0", "-" = NA
+                        "M/V/L/I" = "#3cb44b", "F/Y/W" = "#9a6324", "P" = "purple", "C" = "#46f0f0", "-" = NA
   )
+  }
+  if (!is.null(res.colors)){ ## use custom colors
+    if (length(res.colors)==length(residue.type.list)) {
+      motif.color.list <- c(res.colors[1], res.colors[2], res.colors[3], res.colors[4],
+                            res.colors[5], res.colors[6], res.colors[7], res.colors[8], res.colors[9])
+    } else {
+      stop("If manually specifying residue group colors, you must provide a color for every distinct group!")
+    }
+  }
 
   ## convert to RGB, create array with with the frequencies
   ##  9 different matrices, one for each residue group
@@ -198,39 +215,47 @@ SimpLogo <- function(seq.dir, pattern = "*fa", group.names = NULL, lineage.names
   names(final.hex.list) <- names(seq.list)
 
   for (i in 1:num.archs) {
+    ## pre-allocate final.xyz.matrix
+    final.xyz.matrix <- matrix(0, nrow=align.width, ncol=8)
+
+    ## pre-calculate information content for the sequence alignment using ggseqlogo functions
+    ## convert seq.list[[i]] object into an appropriate list of strings of equal length
+    string.list <- lapply(seq.list[[i]], function(x) paste(x, collapse = ""))
+    string.unlist <- unlist(string.list)
+    tmp.pfm <- ggseqlogo:::makePFM(string.unlist)
+    tmp.ic <- attr(tmp.pfm, "bits")
+
+    colnames(final.xyz.matrix) <- c("X","Y","Z","gap.pattern","gap.freq","top.type","secondary.type","info.content")
+
     for (j in 1:align.width) {
 
-      ## get xyz values (for each position j for each group i)
+      ## get xyz values for each position j for each group i
       xyz.values.for.summing <- xyz.values.list[[i]][j,1:4,]
 
       ## calculate top two freq characters (excluding gaps in last column)
-      top.freq.type <- colnames(xyz.values.for.summing[,c(1:(num.motif.colors-1))])[kit::topn(xyz.values.for.summing[4, c(1:(num.motif.colors-1))], 1, decreasing = T)]
-      secondary.freq.type <- colnames(xyz.values.for.summing[,c(1:(num.motif.colors-1))])[kit::topn(xyz.values.for.summing[4, c(1:(num.motif.colors-1))], 2, decreasing = T)[2]]
+      freq.col <- xyz.values.for.summing[4, 1:(num.motif.colors - 1)]
+      top.indices <- order(freq.col, decreasing = TRUE)[1:2]
+      top.freq.type <- colnames(xyz.values.for.summing)[top.indices[1]]
+      secondary.freq.type <- colnames(xyz.values.for.summing)[top.indices[2]]
 
       ## create matrix of frequencies (for multiplication) ## 3 rows for X, Y and Z, 9 cols for 9 residue types
-      freq.matrix <- matrix(xyz.values.for.summing[4,], nrow=3, ncol=9, byrow=TRUE)
+      freq.matrix <- matrix(xyz.values.for.summing[4, ], nrow=3, ncol=9, byrow = TRUE)
       ## compensate for positions with high gap (rest of the residues will be black)
-      compensated.freq.matrix <- freq.matrix+(freq.matrix[,6]/8)
+      compensated.freq.matrix <- freq.matrix + (freq.matrix[, 6] / 8)
       ## multiply X, Y and Z coordinate by frequency
-      multiplied.matrix <- xyz.values.for.summing[1:3,]*compensated.freq.matrix
-      ## replace gap values zeroes
-      multiplied.matrix[,"-"] <- 0
+      multiplied.matrix <- xyz.values.for.summing[1:3, ] * compensated.freq.matrix
+      multiplied.matrix[,"-"] <- 0       ## replace gap values zeroes
+      ## Sum X, Y, and Z values
+      summed.matrix <- rowSums(multiplied.matrix)
+      ## Store the results
+      final.xyz.matrix[j, 1:3] <- summed.matrix
+      final.xyz.matrix[j, 4] <- "b"
+      final.xyz.matrix[j, 5] <- xyz.values.for.summing["freq", "-"]
+      final.xyz.matrix[j, 6] <- top.freq.type
+      final.xyz.matrix[j, 7] <- secondary.freq.type
+      ## add in IC
+      final.xyz.matrix[j, 8] <- tmp.ic[j]
 
-      ## add X, Y and Z values to final
-      summed.matrix <- apply(as.matrix(multiplied.matrix), 1, sum)
-
-      ## into row j for position j in the alignment
-      final.xyz.matrix[j,1:3] <- summed.matrix
-      final.xyz.matrix[j,4] <- c("b")
-      final.xyz.matrix[j,5] <- xyz.values.for.summing["freq","-"]
-      final.xyz.matrix[j,6] <- top.freq.type
-      final.xyz.matrix[j,7] <- secondary.freq.type
-
-      ## get the information content (bits)
-      ## use getIC and getIE functions from motifStack()
-      p <- rep(1/nrow(motif.list[[i]]@mat), nrow(motif.list[[i]]@mat))
-      tmp.ic <- motifStack::getIC(motif.list[[i]], p)
-      final.xyz.matrix[j,8] <- tmp.ic[j]
     }
     final.xyz.list[[i]] <- final.xyz.matrix
     tmp.mat <- apply(final.xyz.list[[i]][,1:3], 2, as.numeric)
@@ -265,7 +290,9 @@ SimpLogo <- function(seq.dir, pattern = "*fa", group.names = NULL, lineage.names
   ## bind together with arch as id
   final.bound <- dplyr::bind_rows(final.hex.list, .id = "arch")
   final.bound$residue <- as.character(final.bound$position)
-
-  return(final.bound)
+  ## add in dummy factor for facetting IC plot
+  final.bound$dummy <- "IC (bits)"
+  simplogo.list <- list("results.table" = final.bound, "color.scheme" = motif.color.list)
+  return(simplogo.list)
 
 }

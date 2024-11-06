@@ -12,6 +12,8 @@ SimpLogo(seq.dir, pattern = "*fa", group.names = NULL)
 \item{pattern}{File extension for sequence alignment files (e.g., "*fa").}
 
 \item{group.names}{Character vector containing names for sequence groups (1 per alignment file; make sure it's in the same order as your sequence files). If NULL, names are taken from filenames.}
+
+\item{res.colors}{Named vector of colors for each residue type. Must be named and of the same length as the total number of residue groupings (9 groups by default). The default color scheme is as follows: H/K/R = #4363d8, D/E = #e6194b, A/G = #2F4F4F, Q/N/S/T = #ffe119, M/V/L/I = #3cb44b, F/Y/W = #9a6324, P = purple, C = #46f0f0, - = NA.}
 }
 \value{
 Returns a formatted SimpLogo data table ready for plotting.

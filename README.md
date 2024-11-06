@@ -2,9 +2,10 @@ SimpLogo
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <!-- badges: start -->
+
 [![DOI](https://zenodo.org/badge/418649749.svg)](https://zenodo.org/badge/latestdoi/418649749)
+
 <!-- badges: end -->
 
 ## Overview
@@ -66,36 +67,58 @@ lineage.assignments <- c("CheA","CheV","CheW","CheW","CheW","CheW")
 results <- SimpLogo("sample_alignments/",
                     group.names = groups,
                     lineage.names = lineage.assignments)
+#> 
 ```
 
-The **results** object is a long-format dataframe containing the
-converted frequencies and blended colors in hexadecimal. This can be
-used as input for SimpLogoPlot().
+The **results** object is a list, with ***results.table*** being a
+long-format dataframe containing the converted frequencies and blended
+colors in hexadecimal and ***color.scheme*** showing the chosen residue
+groups and ideal color codes. This object can be used as input for
+SimpLogoPlot().
 
 ``` r
-head(results)
-#>     color position     gap.freq info.content top.type secondary.type top.color
-#> 1 #4e330b        1 0.9153339605   3.88936294  Q/N/S/T            D/E   #ffe119
-#> 2 #366043        2 0.3066792098   2.48521344      A/G        M/V/L/I   #2F4F4F
-#> 3 #5faf57        3 0.0799623706   2.57306601  M/V/L/I          F/Y/W   #3cb44b
-#> 4 #7cb94d        4 0.0159924741   1.59894947  M/V/L/I        Q/N/S/T   #3cb44b
-#> 5 #55b551        5 0.0047036689   3.06825575  M/V/L/I          F/Y/W   #3cb44b
-#> 6 #a2908d        6 0.0037629351   0.89504853    H/K/R        Q/N/S/T   #4363d8
-#>   secondary.color   arch lineage residue
-#> 1         #e6194b CheA.I    CheA       1
-#> 2         #3cb44b CheA.I    CheA       2
-#> 3         #9a6324 CheA.I    CheA       3
-#> 4         #ffe119 CheA.I    CheA       4
-#> 5         #9a6324 CheA.I    CheA       5
-#> 6         #ffe119 CheA.I    CheA       6
+head(results$results.table, n=10)
+#>      color position     gap.freq info.content top.type secondary.type top.color
+#> 1  #4e330b        1 0.9153339605   3.17106897  Q/N/S/T            D/E   #ffe119
+#> 2  #366043        2 0.3066792098   2.83531858      A/G        M/V/L/I   #2F4F4F
+#> 3  #5cad57        3 0.0799623706   2.76753716  M/V/L/I          F/Y/W   #3cb44b
+#> 4  #7cb94d        4 0.0159924741   1.59028786  M/V/L/I        Q/N/S/T   #3cb44b
+#> 5  #53b451        5 0.0047036689   3.02199594  M/V/L/I          F/Y/W   #3cb44b
+#> 6  #a2908d        6 0.0037629351   0.83436446    H/K/R        Q/N/S/T   #4363d8
+#> 7  #5cb355        7 0.0037629351   2.22179693  M/V/L/I            A/G   #3cb44b
+#> 8  #796f5c        8 0.0028222013   2.13808286      A/G        Q/N/S/T   #2F4F4F
+#> 9  #bf7d69        9 0.0028222013   1.19827800      D/E            A/G   #e6194b
+#> 10 #dda359       10 0.0028222013   1.46895956  Q/N/S/T            D/E   #ffe119
+#>    secondary.color   arch lineage residue     dummy
+#> 1          #e6194b CheA.I    CheA       1 IC (bits)
+#> 2          #3cb44b CheA.I    CheA       2 IC (bits)
+#> 3          #9a6324 CheA.I    CheA       3 IC (bits)
+#> 4          #ffe119 CheA.I    CheA       4 IC (bits)
+#> 5          #9a6324 CheA.I    CheA       5 IC (bits)
+#> 6          #ffe119 CheA.I    CheA       6 IC (bits)
+#> 7          #2F4F4F CheA.I    CheA       7 IC (bits)
+#> 8          #ffe119 CheA.I    CheA       8 IC (bits)
+#> 9          #2F4F4F CheA.I    CheA       9 IC (bits)
+#> 10         #e6194b CheA.I    CheA      10 IC (bits)
+
+results$color.scheme
+#>     H/K/R       D/E       A/G   Q/N/S/T   M/V/L/I     F/Y/W         P         C 
+#> "#4363d8" "#e6194b" "#2F4F4F" "#ffe119" "#3cb44b" "#9a6324"  "purple" "#46f0f0" 
+#>         - 
+#>        NA
 
 ## here, the group names defined above are stored in the "arch" column
 ```
 
+You may specify a custom color scheme for the residue groups (though
+this is not recommended). To do so, you must include the “res.color”
+parameter by specifying a named vector (names are taken from the default
+residue groups). The vector must have all 9 groups included.
+
 ### Plotting SimpLogo
 
 SimpLogoPlot() uses ggplot2 to generate the plot objects (with
-geom\_tiles).
+geom_tiles).
 
 ``` r
 library(ggplot2)
@@ -107,24 +130,36 @@ plot <- SimpLogoPlot(results, plot.ic = TRUE)
 It produces a list of 3 graphical results, the primary SimpLogo plot
 (the thing with the colored boxes) as a ggplot2 object, shown here:
 
-<img src="man/figures/README-fig2-1.svg" width="100%" style="display: block; margin: auto;" />
+``` r
+plot$primary.plot
+```
+
+<img src="man/figures/README-fig2-1.png" width="100%" style="display: block; margin: auto;" />
 
 A line graph of position-wise information content (in bits) as a ggplot2
 object, shown here:
 
-<img src="man/figures/README-fig3-1.svg" width="100%" style="display: block; margin: auto;" />
+``` r
+plot$ic.plot
+```
+
+<img src="man/figures/README-fig3-1.png" width="100%" style="display: block; margin: auto;" />
 
 And a final combined plot (for convenience) created using the
-plot\_grid() function of cowplot, shown here:
+plot_grid() function of cowplot, shown here:
 
-<img src="man/figures/README-fig4-1.svg" width="100%" style="display: block; margin: auto;" />
+``` r
+plot$final.plot
+```
+
+<img src="man/figures/README-fig4-1.png" width="100%" height="120%" style="display: block; margin: auto;" />
 
 ### Manually editing individual graphs
 
 You can edit the individual plots as ggplot2 objects by modifying the.
 Here we add a new overall title to our plot and change our axis text to
 green using theme \[notice how we used the primary.plot object, the
-final.plot can’t be edited due to the use of plot\_grid()\].
+final.plot can’t be edited due to the use of plot_grid()\].
 
 ``` r
 ## now plot
@@ -136,21 +171,24 @@ plot$primary.plot +
         plot.margin = margin(t=2)) ## to accomodate new title
 ```
 
-<img src="man/figures/README-fig5-1.svg" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-fig5-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Recombining plots
 
-If you decide to edit the ggplot2 objects, you can match the
-plot\_grid() call in SimpLogoPlot() using the following:
+If you decide to edit the ggplot2 objects, you can match the plot_grid()
+call in SimpLogoPlot() using the following:
 
 ``` r
-final.plot <- cowplot::plot_grid(plot$ic.plot, plot$primary.plot,
+final.plot <- cowplot::plot_grid(plot$ic.plot, 
+                                 NULL, ## add blank space, to modify space between plots
+                                 plot$primary.plot,
                                  ncol = 1, align = 'v',
-                                 axis = "lr", rel_heights = c(0.5, 1))
+                                 axis = "lr", rel_heights = c(0.35, 0.0225, 1.4),
+                                 labels = c("A","","B")) ## don't forget blanks for NULL elements
 final.plot
 ```
 
-<img src="man/figures/README-fig6-1.svg" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-fig6-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Renumbering alignment positions
 
@@ -164,7 +202,7 @@ plot2 <- SimpLogoPlot(results, plot.ic = TRUE, position.start = 18)
 plot2$final.plot
 ```
 
-<img src="man/figures/README-fig7-1.svg" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-fig7-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Reordering sequence groups/architectures
 
@@ -179,41 +217,67 @@ plot3 <- SimpLogoPlot(results2, plot.ic = TRUE, position.start = 18)
 plot3$final.plot
 ```
 
-<img src="man/figures/README-fig9-1.svg" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-fig9-1.png" width="100%" style="display: block; margin: auto;" />
+
+### Weirder examples
+
+Perhaps you want to visualize only a specific type of residue. Maybe you
+want to highlight only negative charged side chains. One way to do this
+is the use a custom color palette. Here, we can set all residue groups
+to “black” except D/E, which we make “red”. This generates an
+heatmap-like SimpLogo.
+
+``` r
+highlight.negative.res.results <- SimpLogo("sample_alignments/",
+                                           group.names = groups,
+                                           lineage.names = lineage.assignments,
+                                           res.colors = c("H/K/R" = "black", 
+                                                          "D/E" = "red", 
+                                                          "A/G" = "black", 
+                                                          "Q/N/S/T" = "black",
+                                                          "M/V/L/I" = "black", 
+                                                          "F/Y/W" = "black", 
+                                                          "P" = "black", 
+                                                          "C" = "black", 
+                                                          "-" = NA))
+plot4 <- SimpLogoPlot(highlight.negative.res.results, plot.ic = TRUE)
+plot4$final.plot
+```
+
+<img src="man/figures/README-fig10-1.png" width="100%" style="display: block; margin: auto;" />
 
 ## Output
 
 The output of SimpLogo() is a dataframe with 10 fields:
 
-  - **color**: blended final color for main tile (in hexadecimal)
-  - **position**: position in alignment (starting from 1)
-  - **gap.freq**: frequency of gaps in alignment at position (1 = 100%)
-  - **info.content**: estimated information content (in bits) at
-    position from alignment
-  - **top.type**: the most abundant residue type at the given position
-  - **secondary.type**: the second most abundant residue type at the
-    given position
-  - **top.color**: idealized (100%) color for the most abundant residue
-    type (in hexadecimal)
-  - **secondary.color**: idealized (100%) color for the second most
-    abundant residue type (in hexadecimal)
-  - **arch**: sequence group assignment (taken from filenames if not s)
-  - **lineage**: higher level group assignment (useful for plotting)
-  - **residue**: residue number (used for plotting function)
+- **color**: blended final color for main tile (in hexadecimal)
+- **position**: position in alignment (starting from 1)
+- **gap.freq**: frequency of gaps in alignment at position (1 = 100%)
+- **info.content**: estimated information content (in bits) at position
+  from alignment
+- **top.type**: the most abundant residue type at the given position
+- **secondary.type**: the second most abundant residue type at the given
+  position
+- **top.color**: idealized (100%) color for the most abundant residue
+  type (in hexadecimal)
+- **secondary.color**: idealized (100%) color for the second most
+  abundant residue type (in hexadecimal)
+- **arch**: sequence group assignment (taken from filenames if not s)
+- **lineage**: higher level group assignment (useful for plotting)
+- **residue**: residue number (used for plotting function)
 
 The output of SimpLogoPlot() is a list containing 3 plot objects:
 
-  - **final.plot**: merged SimpLogo and IC plot (not a true ggplot2
-    object)
-  - **primary.plot**: main SimpLogo plot (editable ggplot2 object)
-  - **ic.plot**: line graph of estimated information content (editable
-    ggplot2 object; NULL if plot.ic = FALSE)
+- **final.plot**: merged SimpLogo and IC plot (not a true ggplot2
+  object)
+- **primary.plot**: main SimpLogo plot (editable ggplot2 object)
+- **ic.plot**: line graph of estimated information content (editable
+  ggplot2 object; NULL if plot.ic = FALSE)
 
 ## To do list
 
-More customization options. Possibly custom color palette options. Add
-more complex instances in example section, including highlighting
-specific positions, etc.
+Custom residue groupings. Add more complex instances in example section,
+including highlighting specific positions, etc.
 
 ## License information
 

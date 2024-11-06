@@ -13,8 +13,8 @@ simplogo_main_theme <- function(){
       #grid elements
         panel.grid.major = ggplot2::element_blank(),
         panel.grid.minor = ggplot2::element_blank(),
-        panel.border = ggplot2::element_blank(),
-        plot.margin = ggplot2::margin(t = -3, r = 5, b = 0, l = 0),
+        panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=0.5),
+        plot.margin = ggplot2::margin(t = -3, r = 5, b = 0, l = 7),
         axis.ticks.length.y = ggplot2::unit(.65, "cm"),
         axis.ticks.y = ggplot2::element_blank(),
 
@@ -26,6 +26,8 @@ simplogo_main_theme <- function(){
         axis.text.x.top = ggplot2::element_text(angle = -90, hjust = 1.2, color="black", margin = ggplot2::margin(t = 0, r = 0, b = 5, l = 0)),
         axis.text.y.left = ggplot2::element_text(color="black", hjust=1),
         axis.text.x.bottom = ggplot2::element_text(color="black", hjust = 0, vjust=0.5, margin = ggplot2::margin(t = 5, r = 0, b = 0, l = 0)),
+        # axis.line.x = element_line(size = 0.35, linetype = "solid", colour = "black"),
+        strip.clip = "off",
 
       #legend elements
         legend.position = "bottom",
@@ -47,19 +49,22 @@ simplogo_ic_theme <- function(){
 
       #grid elements
       plot.margin = ggplot2::margin(t = 0, r = 5, b = 0, l = 0),
-      panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1),
+      panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=0.5),
 
       #text elements
-      axis.title.x = ggplot2::element_text(color="black"),
-      axis.title.y.left = ggplot2::element_text(color="black"),
-      axis.text.x.top = ggplot2::element_text(angle = -90, hjust = 1.2, vjust=0.5, color="black", margin = ggplot2::margin(t = 0, r = 0, b = 5, l = 0)),
-      axis.text.y.left = ggplot2::element_text(color="black", margin=ggplot2::margin(l=10)),
+      axis.title.x = ggplot2::element_text(color="black", size=9),
+      axis.title.y.left = ggplot2::element_text(color="black", size=9),
+      axis.text.x.top = ggplot2::element_text(angle = -90, hjust = 1.2, vjust=0.5, color="black",
+                                              margin = ggplot2::margin(t = 0, r = 0, b = 5, l = 0),
+                                              size=9),
+      axis.text.y.left = ggplot2::element_text(color="black", margin=ggplot2::margin(l=10), size=9),
+      strip.clip = "off",
 
       #legend elements
       legend.position = "bottom",
-      legend.margin=ggplot2::margin(t = 0, b = 0.05, unit='cm'),
-      legend.text = ggplot2::element_text(color="black"),
-      legend.title = ggplot2::element_text(color="black")
+      legend.margin=ggplot2::margin(b = -0.5, unit='cm'),
+      legend.text = ggplot2::element_text(color="black", size=9),
+      legend.title = ggplot2::element_text(color="black", size=9)
 
     )
 }
